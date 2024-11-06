@@ -6,18 +6,19 @@
 //
 
 import SwiftUI
-
-
+import SwiftData
 
 struct QuipperView: View {
+    @Environment(\.modelContext) var context
     @StateObject var viewModel = QuipperViewModel()
+    @Query(sort: \CourseModel.videoUrl) var courses: [CourseModel]
     
     var body: some View {
         NavigationView {
             List {
-                ForEach(viewModel.courses, id: \.self) { course in
+                ForEach(courses) { course in
                     HStack(alignment: .center) {
-                        AsyncImage(url: URL(string: course.thumbnail_url ?? "")) { image in
+                        AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
@@ -35,11 +36,11 @@ struct QuipperView: View {
                                 .font(.body)
                                 .bold()
                             
-                            Text(course.presenter_name)
+                            Text(course.presenterName)
                                 .font(.caption)
                                 .padding(.bottom, 1)
                             
-                            Text(course.description)
+                            Text(course.desc)
                                 .font(.subheadline)
                             
                             //Text(String(course.video_duration))
@@ -49,8 +50,20 @@ struct QuipperView: View {
                 }
             }
             .navigationTitle("Quipper Courses")
+            .overlay {
+                if courses.isEmpty {
+                    VStack {
+                        ProgressView("Fetching from the API...")
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color(.systemBackground).opacity(0.8))
+                }
+            }
             .onAppear {
+                viewModel.initialize(context: context)
                 viewModel.fetch()
+                print("onAppear!!!")
             }
         }
     }

@@ -7,8 +7,9 @@
 
 import Foundation
 import SwiftUI
+import SwiftData
 
-struct Course: Hashable, Codable {
+private struct Course: Hashable, Codable {
     let title: String
     let presenter_name: String
     let description: String
@@ -18,8 +19,12 @@ struct Course: Hashable, Codable {
 }
 
 class QuipperViewModel: ObservableObject {
-    @Published var courses: [Course] = []
+    private var context: ModelContext? = nil
     
+    func initialize(context: ModelContext) {
+        self.context = context
+    }
+        
     func fetch() {
         guard let url = URL(string: "https://quipper.github.io/native-technical-exam/playlist.json") else { return }
         
@@ -27,8 +32,19 @@ class QuipperViewModel: ObservableObject {
             guard let data = data, error == nil else { return }
             do {
                 let courses = try JSONDecoder().decode([Course].self, from: data)
+                
                 DispatchQueue.main.async {
-                    self?.courses = courses
+                    for course in courses {
+                        let courseModel = CourseModel(
+                            title: course.title,
+                            presenterName: course.presenter_name,
+                            desc: course.description,
+                            thumbnailUrl: course.thumbnail_url,
+                            videoUrl: course.video_url,
+                            videoDuration: course.video_duration
+                        )
+                        self?.context?.insert(courseModel)
+                    }
                 }
             } catch {
                 print (error)
