@@ -17,38 +17,64 @@ struct CourseView: View {
             List {
                 ForEach(courses) { course in
                     NavigationLink(destination: CourseDetailView(courseId: course.id)) {
-                        HStack(alignment: .center) {
-                            if let imageData = course.thumbnailData, let uiImage = UIImage(data: imageData) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .background(Color.gray)
-                                    .frame(width: 120, height: 60)
-                                    .padding(2)
-                            } else {
-                                Image(systemName: "video")
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .background(Color.gray)
-                                    .frame(width: 120, height: 60)
-                                    .padding(2)
-                            }
-                            
-                            VStack(alignment: .leading) {
-                                Text(course.title)
-                                    .font(.body)
-                                    .bold()
+                        HStack(alignment: .top, spacing: 10) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                ZStack(alignment: .bottomTrailing) {
+                                    if let imageData = course.thumbnailData, let uiImage = UIImage(data: imageData) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 120, height: 70)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(Color.gray, lineWidth: 0.5)
+                                            )
+                                            .clipped()
+                                    } else {
+                                        Image(systemName: "video")
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fit)
+                                            .frame(width: 120, height: 70)
+                                            .foregroundColor(.gray)
+                                            .background(Color.gray.opacity(0.2))
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 8)
+                                                    .stroke(Color.gray, lineWidth: 0.5)
+                                            )
+                                    }
+
+                                    let duration = formatDuration(seconds: course.videoDuration)
+                                    Text(duration)
+                                        .font(.system(size: 8))
+                                        .foregroundColor(.white)
+                                        .padding(1)
+                                        .background(Color.black.opacity(0.7))
+                                        .clipShape(Capsule())
+                                        .padding([.bottom, .trailing], 1)
+                                }
                                 
                                 Text(course.presenterName)
                                     .font(.caption)
-                                    .padding(.bottom, 1)
-                                
-                                Text(course.desc)
-                                    .font(.subheadline)
-                                
-                                //Text(String(course.video_duration))
+                                    .foregroundColor(.secondary)
                             }
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(course.title)
+                                    .font(.headline)
+                                    .fontWeight(.bold)
+                                    .lineLimit(2)
+
+                                Text(course.desc)
+                                    .font(.footnote)
+                                    .foregroundColor(.secondary)
+                                    .lineLimit(3)
+                                    .padding(.top, 2)
+                            }
+                            .padding(.leading, 5)
                         }
+                        .padding(8)
                     }
                 }
             }
@@ -72,6 +98,17 @@ struct CourseView: View {
                 await QuipperWebService().updateDataInDatabase(modelContext: modelContext)
             }
         }
+    }
+}
+
+func formatDuration(seconds: Int) -> String {
+    let hours = seconds / 3600
+    let minutes = (seconds % 3600) / 60
+    
+    if hours > 0 {
+        return String(format: "%02d:%02d", hours, minutes)
+    } else {
+        return String(format: "%02d", minutes)
     }
 }
 
