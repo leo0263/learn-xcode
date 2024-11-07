@@ -10,14 +10,16 @@ import SwiftData
 
 @Model
 class CourseObject {
-    @Attribute(.unique) var videoUrl: String
+    @Attribute(.unique) var id: Int
     var title: String
     var presenterName: String
     var desc: String
     var thumbnailUrl: String
+    var videoUrl: String
     var videoDuration: Int
     
-    init(title: String, presenterName: String, desc: String, thumbnailUrl: String, videoUrl: String, videoDuration: Int) {
+    init(id: Int, title: String, presenterName: String, desc: String, thumbnailUrl: String, videoUrl: String, videoDuration: Int) {
+        self.id = id
         self.title = title
         self.presenterName = presenterName
         self.desc = desc
@@ -26,8 +28,9 @@ class CourseObject {
         self.videoDuration = videoDuration
     }
     
-    convenience init(dto: CourseDTO) {
+    convenience init(dto: CourseDTO, index: Int) {
         self.init(
+            id: index,
             title: dto.title,
             presenterName: dto.presenter_name,
             desc: dto.description,

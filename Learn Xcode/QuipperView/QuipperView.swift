@@ -10,7 +10,7 @@ import SwiftData
 
 struct QuipperView: View {
     @Environment(\.modelContext) var modelContext
-    @Query(sort: \CourseObject.videoUrl) var courses: [CourseObject]
+    @Query(sort: \CourseObject.id) var courses: [CourseObject]
     
     var body: some View {
         NavigationView {

@@ -21,10 +21,12 @@ class QuipperWebService {
     func updateDataInDatabase(modelContext: ModelContext) async {
         do {
             let courses: [CourseDTO] = try await fetchData(urlStr: "https://quipper.github.io/native-technical-exam/playlist.json")
-            for course in courses {
-                let courseObject = CourseObject(dto: course)
+            for (courseIndex, course) in courses.enumerated() {
+                let courseObject = CourseObject(dto: course, index: courseIndex)
                 modelContext.insert(courseObject)
+                print(String(courseIndex) + ": " + course.video_url)
             }
+            try modelContext.save()
         } catch {
             print("Error fetching data")
         }
