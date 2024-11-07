@@ -9,13 +9,12 @@ import Foundation
 import SwiftData
 
 @Model
-class CourseModel {
+class CourseObject {
+    @Attribute(.unique) var videoUrl: String
     var title: String
     var presenterName: String
     var desc: String
     var thumbnailUrl: String
-    @Attribute(.unique)
-    var videoUrl: String
     var videoDuration: Int
     
     init(title: String, presenterName: String, desc: String, thumbnailUrl: String, videoUrl: String, videoDuration: Int) {
@@ -25,5 +24,16 @@ class CourseModel {
         self.thumbnailUrl = thumbnailUrl
         self.videoUrl = videoUrl
         self.videoDuration = videoDuration
+    }
+    
+    convenience init(dto: CourseDTO) {
+        self.init(
+            title: dto.title,
+            presenterName: dto.presenter_name,
+            desc: dto.description,
+            thumbnailUrl: dto.thumbnail_url,
+            videoUrl: dto.video_url,
+            videoDuration: dto.video_duration
+        )
     }
 }

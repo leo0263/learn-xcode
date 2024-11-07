@@ -9,45 +9,43 @@ import SwiftUI
 import SwiftData
 
 struct QuipperView: View {
-    @Environment(\.modelContext) var context
-    @StateObject var viewModel = QuipperViewModel()
-    @Query(sort: \CourseModel.videoUrl) var courses: [CourseModel]
+    @Environment(\.modelContext) var modelContext
+    @Query(sort: \CourseObject.videoUrl) var courses: [CourseObject]
     
     var body: some View {
         NavigationView {
-            List {
-                ForEach(courses) { course in
-                    HStack(alignment: .center) {
-                        AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .background(Color.gray)
-                        } placeholder: {
-                            Image(systemName: "video")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .background(Color.gray)
-                        }
-                        .frame(width: 130, height: 70)
-
-                        VStack(alignment: .leading) {
-                            Text(course.title)
-                                .font(.body)
-                                .bold()
-                            
-                            Text(course.presenterName)
-                                .font(.caption)
-                                .padding(.bottom, 1)
-                            
-                            Text(course.desc)
-                                .font(.subheadline)
-                            
-                            //Text(String(course.video_duration))
-                        }
+            List(courses) { course in
+                HStack(alignment: .center) {
+                    AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .background(Color.gray)
+                    } placeholder: {
+                        Image(systemName: "video")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .background(Color.gray)
                     }
-                    .padding(3)
+                    .frame(width: 130, height: 70)
+
+                    VStack(alignment: .leading) {
+                        Text(course.title)
+                            .font(.body)
+                            .bold()
+                        
+                        Text(course.presenterName)
+                            .font(.caption)
+                            .padding(.bottom, 1)
+                        
+                        Text(course.desc)
+                            .font(.subheadline)
+                        
+                        //Text(String(course.video_duration))
+                    }
                 }
+                .padding(3)
+                
             }
             .navigationTitle("Quipper Courses")
             .overlay {
@@ -60,10 +58,13 @@ struct QuipperView: View {
                     .background(Color(.systemBackground).opacity(0.8))
                 }
             }
-            .onAppear {
-                viewModel.initialize(context: context)
-                viewModel.fetch()
-                print("onAppear!!!")
+            .task {
+                if courses.isEmpty {
+                    await QuipperWebService().updateDataInDatabase(modelContext: modelContext)
+                }
+            }
+            .refreshable {
+                await QuipperWebService().updateDataInDatabase(modelContext: modelContext)
             }
         }
     }

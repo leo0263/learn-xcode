@@ -14,6 +14,6 @@ struct Learn_XcodeApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [CourseModel.self])
+        .modelContainer(for: [CourseObject.self])
     }
 }
