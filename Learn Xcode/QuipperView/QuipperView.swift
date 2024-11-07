@@ -14,38 +14,41 @@ struct QuipperView: View {
     
     var body: some View {
         NavigationView {
-            List(courses) { course in
-                HStack(alignment: .center) {
-                    AsyncImage(url: URL(string: course.thumbnailUrl)) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .background(Color.gray)
-                    } placeholder: {
-                        Image(systemName: "video")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .background(Color.gray)
+            List {
+                //ForEach(courses.sorted(by: {$0.id < $1.id})) { course in
+                ForEach(courses) { course in
+                    HStack(alignment: .center) {
+                        if let imageData = course.thumbnailData, let uiImage = UIImage(data: imageData) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .background(Color.gray)
+                                .frame(width: 130, height: 70)
+                        } else {
+                            Image(systemName: "video")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .background(Color.gray)
+                                .frame(width: 130, height: 70)
+                        }
+                        
+                        VStack(alignment: .leading) {
+                            Text(course.title)
+                                .font(.body)
+                                .bold()
+                            
+                            Text(course.presenterName)
+                                .font(.caption)
+                                .padding(.bottom, 1)
+                            
+                            Text(course.desc)
+                                .font(.subheadline)
+                            
+                            //Text(String(course.video_duration))
+                        }
                     }
-                    .frame(width: 130, height: 70)
-
-                    VStack(alignment: .leading) {
-                        Text(course.title)
-                            .font(.body)
-                            .bold()
-                        
-                        Text(course.presenterName)
-                            .font(.caption)
-                            .padding(.bottom, 1)
-                        
-                        Text(course.desc)
-                            .font(.subheadline)
-                        
-                        //Text(String(course.video_duration))
-                    }
+                    .padding(3)
                 }
-                .padding(3)
-                
             }
             .navigationTitle("Quipper Courses")
             .overlay {

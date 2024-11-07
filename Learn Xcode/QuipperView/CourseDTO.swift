@@ -4,6 +4,7 @@
 //
 //  Created by Leonardi on 07/11/24.
 //
+import Foundation
 
 struct CourseDTO: Hashable, Codable {
     let title: String

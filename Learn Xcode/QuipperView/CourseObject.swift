@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-class CourseObject {
+class CourseObject: Identifiable {
     @Attribute(.unique) var id: Int
     var title: String
     var presenterName: String
@@ -17,8 +17,9 @@ class CourseObject {
     var thumbnailUrl: String
     var videoUrl: String
     var videoDuration: Int
+    @Attribute(.externalStorage) var thumbnailData: Data?
     
-    init(id: Int, title: String, presenterName: String, desc: String, thumbnailUrl: String, videoUrl: String, videoDuration: Int) {
+    init(id: Int, title: String, presenterName: String, desc: String, thumbnailUrl: String, videoUrl: String, videoDuration: Int, thumbnailData: Data? = nil) {
         self.id = id
         self.title = title
         self.presenterName = presenterName
@@ -26,6 +27,7 @@ class CourseObject {
         self.thumbnailUrl = thumbnailUrl
         self.videoUrl = videoUrl
         self.videoDuration = videoDuration
+        self.thumbnailData = thumbnailData
     }
     
     convenience init(dto: CourseDTO, index: Int) {

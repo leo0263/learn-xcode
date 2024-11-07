@@ -23,8 +23,11 @@ class QuipperWebService {
             let courses: [CourseDTO] = try await fetchData(urlStr: "https://quipper.github.io/native-technical-exam/playlist.json")
             for (courseIndex, course) in courses.enumerated() {
                 let courseObject = CourseObject(dto: course, index: courseIndex)
+                if let imageData = await getDataFrom(url: courseObject.thumbnailUrl) {
+                    courseObject.thumbnailData = imageData
+                }
+                
                 modelContext.insert(courseObject)
-                print(String(courseIndex) + ": " + course.video_url)
             }
             try modelContext.save()
         } catch {
@@ -35,6 +38,16 @@ class QuipperWebService {
     private func fetchData<T: Codable>(urlStr: String) async throws -> [T] {
         guard let fetchedData: [T] = await QuipperWebService().downloadData(urlStr: urlStr)  else {return []}
         return fetchedData
+    }
+    
+    private func getDataFrom(url: String) async -> Data? {
+        do {
+            let (data, _) = try await URLSession.shared.data(from: URL(string: url)!)
+            return data
+        } catch {
+            print("Error fetching data: \(error)")
+            return nil
+        }
     }
     
     private func downloadData<T: Codable>(urlStr: String) async -> T? {
