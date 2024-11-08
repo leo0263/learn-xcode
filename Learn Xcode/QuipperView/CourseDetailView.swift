@@ -70,43 +70,36 @@ struct VideoPlayerView: View {
     @State private var isInitialized = false
     
     var body: some View {
-          ZStack {
-                CustomPlayerView(player: player)
-                    .aspectRatio(16/9, contentMode: .fit)
-                    .onAppear {
-                        if !isInitialized {
-                            setupPlayer(url: videoUrl)
-                        }
+        ZStack {
+            CustomPlayerView(player: player)
+                .aspectRatio(16/9, contentMode: .fit)
+                .onAppear {
+                    if !isInitialized {
+                        setupPlayer(url: videoUrl)
                     }
-//                    .onDisappear {
-//                        player.pause()
-//                        player.replaceCurrentItem(with: nil)
-//                    }
-                if isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .scaleEffect(2)
                 }
-                
-                if hasError {
-                    Text("Failed to load video, check your internet connection...")
-                        .font(.headline)
-                        .foregroundColor(.red)
-                        .padding()
-                        .background(Color.white.opacity(0.8))
-                        .cornerRadius(10)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .center)
-
-                }
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle())
+                    .scaleEffect(2)
             }
+                
+            if hasError {
+                Text("Failed to load video, check your internet connection...")
+                    .font(.headline)
+                    .foregroundColor(.red)
+                    .padding()
+                    .background(Color.white.opacity(0.8))
+                    .cornerRadius(10)
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity, alignment: .center)
+
+            }
+        }
     }
     
     private func setupPlayer(url: URL) {
         let playerItem = AVPlayerItem(url: url)
-//        let playerViewController = AVPlayerViewController()
-//        playerViewController.player = player
-//        playerViewController.showsPlaybackControls = true
         
         playerItem.publisher(for: \.status)
             .sink { status in
@@ -142,8 +135,10 @@ struct CustomPlayerView: UIViewControllerRepresentable {
         return playerViewController
     }
 
-    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
-        // Any updates to the player can be handled here
+    func updateUIViewController(
+        _ uiViewController: AVPlayerViewController,
+        context: Context
+    ) {
         uiViewController.player = player
     }
 }

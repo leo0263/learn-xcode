@@ -20,10 +20,14 @@ class QuipperWebService {
     @MainActor
     func updateDataInDatabase(modelContext: ModelContext) async {
         do {
-            let courses: [CourseDTO] = try await fetchData(urlStr: "https://quipper.github.io/native-technical-exam/playlist.json")
+            let courses: [CourseDTO] = try await fetchData(
+                urlStr: "https://quipper.github.io/native-technical-exam/playlist.json"
+            )
             for (courseIndex, course) in courses.enumerated() {
                 let courseObject = CourseObject(dto: course, index: courseIndex)
-                if let imageData = await getDataFrom(url: courseObject.thumbnailUrl) {
+                if let imageData = await getDataFrom(
+                    url: courseObject.thumbnailUrl
+                ) {
                     courseObject.thumbnailData = imageData
                 }
                 
@@ -36,13 +40,17 @@ class QuipperWebService {
     }
     
     private func fetchData<T: Codable>(urlStr: String) async throws -> [T] {
-        guard let fetchedData: [T] = await QuipperWebService().downloadData(urlStr: urlStr)  else {return []}
+        guard let fetchedData: [T] = await QuipperWebService().downloadData(urlStr: urlStr)  else {
+            return []
+        }
         return fetchedData
     }
     
     private func getDataFrom(url: String) async -> Data? {
         do {
-            let (data, _) = try await URLSession.shared.data(from: URL(string: url)!)
+            let (data, _) = try await URLSession.shared.data(
+                from: URL(string: url)!
+            )
             return data
         } catch {
             print("Error fetching data: \(error)")
@@ -52,11 +60,19 @@ class QuipperWebService {
     
     private func downloadData<T: Codable>(urlStr: String) async -> T? {
         do {
-            guard let url = URL(string: urlStr) else { throw NetworkError.badUrl }
+            guard let url = URL(string: urlStr) else {
+                throw NetworkError.badUrl
+            }
             let (data, response) = try await URLSession.shared.data(from: url)
-            guard let response = response as? HTTPURLResponse else { throw NetworkError.badResponse }
-            guard response.statusCode >= 200 && response.statusCode < 300 else { throw NetworkError.badStatus }
-            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else { throw NetworkError.failedToDecodeResponse }
+            guard let response = response as? HTTPURLResponse else {
+                throw NetworkError.badResponse
+            }
+            guard response.statusCode >= 200 && response.statusCode < 300 else {
+                throw NetworkError.badStatus
+            }
+            guard let decodedResponse = try? JSONDecoder().decode(T.self, from: data) else {
+                throw NetworkError.failedToDecodeResponse
+            }
             
             return decodedResponse
         } catch NetworkError.badUrl {

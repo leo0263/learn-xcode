@@ -16,19 +16,32 @@ struct CourseView: View {
         NavigationView {
             List {
                 ForEach(courses) { course in
-                    NavigationLink(destination: CourseDetailView(courseId: course.id)) {
+                    NavigationLink(
+                        destination: CourseDetailView(courseId: course.id)
+                    ) {
                         HStack(alignment: .top, spacing: 10) {
                             VStack(alignment: .leading, spacing: 4) {
                                 ZStack(alignment: .bottomTrailing) {
-                                    if let imageData = course.thumbnailData, let uiImage = UIImage(data: imageData) {
+                                    if let imageData = course.thumbnailData, let uiImage = UIImage(
+                                        data: imageData
+                                    ) {
                                         Image(uiImage: uiImage)
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 120, height: 70)
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .clipShape(
+                                                RoundedRectangle(
+                                                    cornerRadius: 8
+                                                )
+                                            )
                                             .overlay(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.gray, lineWidth: 0.5)
+                                                RoundedRectangle(
+                                                    cornerRadius: 8
+                                                )
+                                                .stroke(
+                                                    Color.gray,
+                                                    lineWidth: 0.5
+                                                )
                                             )
                                             .clipped()
                                     } else {
@@ -38,14 +51,25 @@ struct CourseView: View {
                                             .frame(width: 120, height: 70)
                                             .foregroundColor(.gray)
                                             .background(Color.gray.opacity(0.2))
-                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            .clipShape(
+                                                RoundedRectangle(
+                                                    cornerRadius: 8
+                                                )
+                                            )
                                             .overlay(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.gray, lineWidth: 0.5)
+                                                RoundedRectangle(
+                                                    cornerRadius: 8
+                                                )
+                                                .stroke(
+                                                    Color.gray,
+                                                    lineWidth: 0.5
+                                                )
                                             )
                                     }
 
-                                    let duration = formatDuration(milliseconds: course.videoDuration)
+                                    let duration = formatDuration(
+                                        milliseconds: course.videoDuration
+                                    )
                                     Text(duration)
                                         .font(.system(size: 8))
                                         .foregroundColor(.white)
@@ -91,11 +115,13 @@ struct CourseView: View {
             }
             .task {
                 if courses.isEmpty {
-                    await QuipperWebService().updateDataInDatabase(modelContext: modelContext)
+                    await QuipperWebService()
+                        .updateDataInDatabase(modelContext: modelContext)
                 }
             }
             .refreshable {
-                await QuipperWebService().updateDataInDatabase(modelContext: modelContext)
+                await QuipperWebService()
+                    .updateDataInDatabase(modelContext: modelContext)
             }
         }
     }
