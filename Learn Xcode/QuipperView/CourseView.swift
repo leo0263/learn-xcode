@@ -45,7 +45,7 @@ struct CourseView: View {
                                             )
                                     }
 
-                                    let duration = formatDuration(seconds: course.videoDuration)
+                                    let duration = formatDuration(milliseconds: course.videoDuration)
                                     Text(duration)
                                         .font(.system(size: 8))
                                         .foregroundColor(.white)
@@ -101,16 +101,14 @@ struct CourseView: View {
     }
 }
 
-func formatDuration(seconds: Int) -> String {
-    let hours = seconds / 3600
-    let minutes = (seconds % 3600) / 60
-    
-    if hours > 0 {
-        return String(format: "%02d:%02d", hours, minutes)
-    } else {
-        return String(format: "%02d", minutes)
-    }
+func formatDuration(milliseconds: Int) -> String {
+    let totalSeconds = milliseconds / 1000
+    let minutes = totalSeconds / 60
+    let seconds = totalSeconds % 60
+
+    return String(format: "%02d:%02d", minutes, seconds)
 }
+
 
 #Preview {
     CourseView()
