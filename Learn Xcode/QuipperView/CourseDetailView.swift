@@ -11,7 +11,9 @@ import AVKit
 import Combine
 
 struct CourseDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     @Query(sort: \CourseObject.id) var courses: [CourseObject]
+    @State private var player = AVPlayer()
     
     var courseId: Int
     private var course: CourseObject? {
@@ -21,7 +23,7 @@ struct CourseDetailView: View {
     var body: some View {
         if let course = course, let videoUrl = URL(string: course.videoUrl) {
             VStack(alignment: .leading, spacing: 10) {
-                VideoPlayerView(videoUrl: videoUrl)
+                VideoPlayerView(videoUrl: videoUrl, player: player)
                 
                 Text(course.title)
                     .font(.title)
@@ -38,6 +40,19 @@ struct CourseDetailView: View {
                 Spacer()
             }
             .padding(10)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button {
+                        player.pause()
+                        player.replaceCurrentItem(with: nil)
+                        dismiss()
+                    } label: {
+                        Image(systemName: "chevron.backward")
+                        Text("Quipper Courses")
+                    }
+                }
+            }
         } else {
             Text("Course not found")
                 .foregroundColor(.red)
@@ -49,21 +64,24 @@ struct CourseDetailView: View {
 
 struct VideoPlayerView: View {
     var videoUrl: URL
-    @State private var player = AVPlayer()
+    var player: AVPlayer
     @State private var isLoading = true
     @State private var hasError = false
+    @State private var isInitialized = false
     
     var body: some View {
           ZStack {
-                VideoPlayer(player: player)
+                CustomPlayerView(player: player)
                     .aspectRatio(16/9, contentMode: .fit)
                     .onAppear {
-                        setupPlayer(url: videoUrl)
+                        if !isInitialized {
+                            setupPlayer(url: videoUrl)
+                        }
                     }
-                    .onDisappear {
-                        player.pause()
-                        player.replaceCurrentItem(with: nil)
-                    }
+//                    .onDisappear {
+//                        player.pause()
+//                        player.replaceCurrentItem(with: nil)
+//                    }
                 if isLoading {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle())
@@ -86,6 +104,9 @@ struct VideoPlayerView: View {
     
     private func setupPlayer(url: URL) {
         let playerItem = AVPlayerItem(url: url)
+//        let playerViewController = AVPlayerViewController()
+//        playerViewController.player = player
+//        playerViewController.showsPlaybackControls = true
         
         playerItem.publisher(for: \.status)
             .sink { status in
@@ -93,6 +114,7 @@ struct VideoPlayerView: View {
                 case .readyToPlay:
                     isLoading = false
                     hasError = false
+                    isInitialized = true
                     player.replaceCurrentItem(with: playerItem)
                     player.play()
                 case .failed:
@@ -109,3 +131,20 @@ struct VideoPlayerView: View {
     
     @State private var cancellables: Set<AnyCancellable> = []
 }
+
+struct CustomPlayerView: UIViewControllerRepresentable {
+    let player: AVPlayer
+
+    func makeUIViewController(context: Context) -> AVPlayerViewController {
+        let playerViewController = AVPlayerViewController()
+        playerViewController.player = player
+        playerViewController.showsPlaybackControls = true
+        return playerViewController
+    }
+
+    func updateUIViewController(_ uiViewController: AVPlayerViewController, context: Context) {
+        // Any updates to the player can be handled here
+        uiViewController.player = player
+    }
+}
+
